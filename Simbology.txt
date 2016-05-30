@@ -1,0 +1,6 @@
+#GSM = Global Stiffness Matrix.
+#LSM = Local Stiffness Matrix.
+#n = Vector that Quantify the informations that should be inserted in the Structure. [Number of Nodes ; Number of Elements ; Number of Restrained Nodes ; Number of Loadings]
+#nodes, elements, supports and loadings are matrices that restrain the information in vectors, or, its a vector of a vectors.
+#nodes = Matrix that hold all the nodes in it. [Node Index , Node X-Coord , Node Y-Coord]
+#elements = Matrix that hold all the element informations in it. [Element Index , Connectivity , Young's Modulus , Poisson Ratio, Thickness , Strain/Stress ]

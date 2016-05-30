@@ -1,16 +1,16 @@
-#
-n =[6;2;2;2]
+# The primary need to run this code is to have the informations about the initial mesh, and it has to be manually inserted below at the following vectors
+n =[6;2;2;2]     #This is a Vector that Quantify the informations that should be inserted in the Structure and is designed to follow this sequence [Number of Nodes ; Number of Elements ; Number of Restrained Nodes ; Number of Loadings]
 nodes=[1 0 0;2 0.25 0;3 0.5 0;4 0 0.25;5 0.25 0.25;6 0.5 0.25]
 elements=[1 1 2 5 4 210e9 0.3 0.025 1;2 2 3 6 5 210e9 0.3 0.025 1]
 supports=[1 1 0 0;2 4 0 0]
 loadings=[1 3 9.375e3 0;2 6 9.375e3 0]
-nintpt=4
+nintpt=4         #Number of Integration Points / As is a Linear Quadrilateral Element it's supposed to be 4 integration points per element
 DoF=2            #Degree of Freedom
 NEle=4           #Number of nodes per Element
 LDoF=NEle*n[1]   #Local Degree of Freedom
 GDoF=DoF*n[1]    #Global Degree of Freedom
 #
-
+#This is a function that it's goal is to assemble the Global Stiffness Matrix (GSM)
 function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
   LDoF=NEle*DoF
   GDoF=n[1]*DoF

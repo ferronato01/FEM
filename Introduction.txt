@@ -4,7 +4,7 @@
 #nodes, elements, supports and loadings are matrices that restrain the information in vectors, or, its a vector of a vectors.
 #nodes = Matrix that holds all the nodes in it. [Node Index , Node X-Coord , Node Y-Coord]
 #elements = Matrix that holds all the element informations in it. [Element Index , Connectivity , Young's Modulus , Poisson Ratio, Thickness , Strain/Stress ]
-#suports = Matrix that holds the nondisplaceable nodes. [Support Index , Acting Node , X-Freedom , Y-Freedom] 1 - Free to Displace ; 0 - Not Displaceable
+#suports = Matrix that holds the nondisplaceable nodes. [Support Index , Acting Node , X-Constrain , Y-Constrain] 1 - Free to Displace ; 0 - Constrained Node
 #loadings = Matrix that holds all the loadings applied. [Force Index , Acting Node , X-Force , Y-Force]
 #DoF = Degree of Freedom
 #NEle = Nodes per Element
@@ -12,7 +12,20 @@
 #LDoF = Local Degree of Freedom (Degree of Freedom per Element)
 #k = Local Stiffness Matrix
 #K = Global Stiffness Matrix
+#nintpt = Number of Integration Points per Element
+#w = Integration Weights
+#E = Young's Modulus
+#ν = Poisson Ratio
+#t = thickness
+#p = Stress/Strain Constant
+#coord = Matrix that restrain the elements X and Y coordinates
 #u = vector that holds if a node can displace or not
 #F = Force Vector
 #desloc = Nodes Displacements
 #cargas = Nodes Applied Forces
+#function GlobalStiffness
+  A function that it's goal is to Assemble the GSM (K Matrix) by assembling first LSM (k Matrix).
+#function fixednodes
+  A function that is supposed to get all the nodes in the mesh and read if the node is constrained or not in X or Y axis (and in some cases rotation). This is first done so can be applied boundary conditions at K.
+#function boundaryconditions
+  By the pre-obtained u-vector that holds if a node can displace or not, this function will apply the boundary conditions at the Global Matrix so the sparse one is setted by substituting the main-diagonal with 1 and the row and column with zeros at nodes that can't displace.

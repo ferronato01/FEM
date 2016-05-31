@@ -10,7 +10,6 @@ NEle=4
 LDoF=NEle*n[1]   
 GDoF=DoF*n[1]    
 #
-
 function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
   LDoF=NEle*DoF
   GDoF=n[1]*DoF
@@ -40,7 +39,7 @@ function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
     k=zeros(Float64,LDoF,LDoF)
     xi=zeros(Float64,2,4)
     w=ones(Float64,4)
-    xi[1,1]=-(sqrt(3))/3            
+    xi[1,1]=-(sqrt(3))/3      #Natural coordinates given by Gaussian Quadrature
     xi[2,1] = xi[1,1]
     xi[1,2] = -xi[1,1]
     xi[2,2] = xi[1,1]
@@ -54,14 +53,14 @@ function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
     for intpt = 1:nintpt    
       N=zeros(Float64,nintpt)
       dNdxi=zeros(Float64,nintpt,2)
-      B=zeros(Float64,3,8)   
-      ξ=xi[1,intpt]
-      η=xi[2,intpt]
-      N[1]=((1-ξ)*(1-η))/4
+      B=zeros(Float64,3,8)
+      ξ=xi[1,intpt]           #X-axis Natural Coordinate
+      η=xi[2,intpt]           #Y-axis Natural Coordinate
+      N[1]=((1-ξ)*(1-η))/4    #Shape Functions given by FEM Theory
       N[2]=((1+ξ)*(1-η))/4
       N[3]=((1+ξ)*(1+η))/4
       N[4]=((1-ξ)*(1+η))/4
-      dNdxi[1,1]=-(1-η)/4
+      dNdxi[1,1]=-(1-η)/4     #Shape function derivatives written in the local coordinates
       dNdxi[1,2]=-(1-ξ)/4
       dNdxi[2,1]=(1-η)/4
       dNdxi[2,2]=-(1+ξ)/4
@@ -73,13 +72,12 @@ function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
       for i = 1:2, j = 1:2     
         dxdxi[i,j]=0
         for l = 1:NEle
-          dxdxi[i,j]=dxdxi[i,j]+coord[l,i]*dNdxi[l,j]  
+          dxdxi[i,j]=dxdxi[i,j]+coord[l,i]*dNdxi[l,j]  #Sub-Routine to compute the Jacobian Matrix
         end
       end
       dxidx=zeros(Float64,2,2)
-      dtm=0
-      dtm=dxdxi[1,1]*dxdxi[2,2]-dxdxi[1,2]*dxdxi[2,1]
-      dxidx[1,1]=dxdxi[2,2]/dtm
+      dtm=dxdxi[1,1]*dxdxi[2,2]-dxdxi[1,2]*dxdxi[2,1] #Jacobian's determinant
+      dxidx[1,1]=dxdxi[2,2]/dtm                       #Jacobian's inverse
       dxidx[2,2]=dxdxi[1,1]/dtm
       dxidx[1,2]=-dxdxi[1,2]/dtm
       dxidx[2,1]=-dxdxi[2,1]/dtm
@@ -87,7 +85,7 @@ function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
       for l = 1:NEle, i = 1:2
         dNdx[l,i]=0
         for j = 1:2
-          dNdx[l,i]=dNdx[l,i]+dNdxi[l,j]*dxidx[j,i]
+          dNdx[l,i]=dNdx[l,i]+dNdxi[l,j]*dxidx[j,i]   #Converting the local-coordinate derivatives shape functions into global ones
         end
       end
       if elements[e,9]==1
@@ -106,13 +104,13 @@ function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
         B[3,ix]=dNdx[i,2]
         B[3,iy]=dNdx[i,1]
       end
-      k = k + transpose(B)*D*B*w[intpt]*dtm*t
+      k = k + transpose(B)*D*B*w[intpt]*dtm*t         #Assembling the element stiffness
     end
     for i = 1:LDoF
       for j = 1:LDoF
         row =elementDof[i]
         column = elementDof[j]
-        K[row,column]=K[row,column]+k[i,j]
+        K[row,column]=K[row,column]+k[i,j]            #Assembling Global Stiffness Matrix
       end
     end
   end

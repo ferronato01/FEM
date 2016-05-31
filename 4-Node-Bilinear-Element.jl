@@ -5,10 +5,10 @@ elements=[1 1 2 5 4 210e9 0.3 0.025 1;2 2 3 6 5 210e9 0.3 0.025 1]
 supports=[1 1 0 0;2 4 0 0]
 loadings=[1 3 9.375e3 0;2 6 9.375e3 0]
 nintpt=4         #Number of Integration Points / As is a Linear Quadrilateral Element it's supposed to be 4 integration points per element
-DoF=2            #Degree of Freedom
-NEle=4           #Number of nodes per Element
-LDoF=NEle*n[1]   #Local Degree of Freedom
-GDoF=DoF*n[1]    #Global Degree of Freedom
+DoF=2            
+NEle=4           
+LDoF=NEle*n[1]   
+GDoF=DoF*n[1]    
 #
 #This is a function that it's goal is to assemble the Global Stiffness Matrix (GSM)
 function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
@@ -48,15 +48,15 @@ function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
     xi[2,3] = -xi[1,1]
     xi[1,4] = -xi[1,1]
     xi[2,4] = -xi[1,1]
-    E = elements[e,6]     #Youngs Modulus
-    ν = elements[e,7]     #Poisson Ratio
-    t = elements[e,8]     #thickness
-    for intpt = 1:nintpt     #In this language we don't use Do for loop, is just for as in c or cpp
+    E = elements[e,6]     
+    ν = elements[e,7]     
+    t = elements[e,8]     
+    for intpt = 1:nintpt  
       N=zeros(Float64,nintpt)
       dNdxi=zeros(Float64,nintpt,2)
       xii=zeros(Float64,2)
-      B=zeros(Float64,3,8)   #This is my BB matrix, and i don't make a TB cause i can simply use transpose(B) and don't need to create a variable
-      xii[1]=xi[1,intpt]     #My looped Natural Coordinate
+      B=zeros(Float64,3,8)  
+      xii[1]=xi[1,intpt]    
       xii[2]=xi[2,intpt]
       N[1]=((1-xii[1])*(1-xii[2]))/4
       N[2]=((1+xii[1])*(1-xii[2]))/4
@@ -71,10 +71,10 @@ function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
       dNdxi[4,1]=-(1+xii[2])/4
       dNdxi[4,2]=(1-xii[1])/4
       dxdxi=zeros(Float64,2,2)
-      for i = 1:2, j = 1:2      #Doing 2 loops consecutively
+      for i = 1:2, j = 1:2
         dxdxi[i,j]=0
         for l = 1:NEle
-          dxdxi[i,j]=dxdxi[i,j]+coord[l,i]*dNdxi[l,j]   #coords is my matrix with the nodes coordinates from the element (a 4x2 matrix, 4 nodes over the integration loop with x and y coordinates)
+          dxdxi[i,j]=dxdxi[i,j]+coord[l,i]*dNdxi[l,j]   
         end
       end
       dxidx=zeros(Float64,2,2)
@@ -121,7 +121,7 @@ end
 
 function fixednodes(supports,loadings,n,DoF,u,F)
 #This function is designed to be able to get the nodes in the Structure and write a vector that has 1 or 0 in it
-#1 indicate that the node can displace/rotate in that direction, and 0 that is restrained (can't)
+#1 indicate that the node can displace/rotate in that direction, and 0 that is fixed (can't)
 #If in a coordinate at Displacement Vector (u) has 1 it implie that in the same coordinate at the Force Vector (F) should be a force that is not 0
 #and vice-versa
   for i = 1:n[3]

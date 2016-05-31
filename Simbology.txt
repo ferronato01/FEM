@@ -2,5 +2,17 @@
 #LSM = Local Stiffness Matrix.
 #n = Vector that Quantify the informations that should be inserted in the Structure. [Number of Nodes ; Number of Elements ; Number of Restrained Nodes ; Number of Loadings]
 #nodes, elements, supports and loadings are matrices that restrain the information in vectors, or, its a vector of a vectors.
-#nodes = Matrix that hold all the nodes in it. [Node Index , Node X-Coord , Node Y-Coord]
-#elements = Matrix that hold all the element informations in it. [Element Index , Connectivity , Young's Modulus , Poisson Ratio, Thickness , Strain/Stress ]
+#nodes = Matrix that holds all the nodes in it. [Node Index , Node X-Coord , Node Y-Coord]
+#elements = Matrix that holds all the element informations in it. [Element Index , Connectivity , Young's Modulus , Poisson Ratio, Thickness , Strain/Stress ]
+#suports = Matrix that holds the nondisplaceable nodes. [Support Index , Acting Node , X-Freedom , Y-Freedom] 1 - Free to Displace ; 0 - Not Displaceable
+#loadings = Matrix that holds all the loadings applied. [Force Index , Acting Node , X-Force , Y-Force]
+#DoF = Degree of Freedom
+#NEle = Nodes per Element
+#GDoF = Global Degree of Freedom
+#LDoF = Local Degree of Freedom (Degree of Freedom per Element)
+#k = Local Stiffness Matrix
+#K = Global Stiffness Matrix
+#u = vector that holds if a node can displace or not
+#F = Force Vector
+#desloc = Nodes Displacements
+#cargas = Nodes Applied Forces

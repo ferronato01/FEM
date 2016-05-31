@@ -1,16 +1,16 @@
 # The primary need to run this code is to have the informations about the initial mesh, and it has to be manually inserted below at the following vectors
-n =[6;2;2;2]     #This is a Vector that Quantify the informations that should be inserted in the Structure and is designed to follow this sequence [Number of Nodes ; Number of Elements ; Number of Restrained Nodes ; Number of Loadings]
+n =[6;2;2;2]
 nodes=[1 0 0;2 0.25 0;3 0.5 0;4 0 0.25;5 0.25 0.25;6 0.5 0.25]
 elements=[1 1 2 5 4 210e9 0.3 0.025 1;2 2 3 6 5 210e9 0.3 0.025 1]
 supports=[1 1 0 0;2 4 0 0]
 loadings=[1 3 9.375e3 0;2 6 9.375e3 0]
-nintpt=4         #Number of Integration Points / As is a Linear Quadrilateral Element it's supposed to be 4 integration points per element
+nintpt=4
 DoF=2            
 NEle=4           
 LDoF=NEle*n[1]   
 GDoF=DoF*n[1]    
 #
-#This is a function that it's goal is to assemble the Global Stiffness Matrix (GSM)
+
 function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
   LDoF=NEle*DoF
   GDoF=n[1]*DoF
@@ -40,7 +40,7 @@ function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
     k=zeros(Float64,LDoF,LDoF)
     xi=zeros(Float64,2,4)
     w=ones(Float64,4)
-    xi[1,1]=-(sqrt(3))/3            #Natural Coordinates given by Gaussian Quadrature
+    xi[1,1]=-(sqrt(3))/3            
     xi[2,1] = xi[1,1]
     xi[1,2] = -xi[1,1]
     xi[2,2] = xi[1,1]
@@ -51,30 +51,29 @@ function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
     E = elements[e,6]     
     ν = elements[e,7]     
     t = elements[e,8]     
-    for intpt = 1:nintpt  
+    for intpt = 1:nintpt    
       N=zeros(Float64,nintpt)
       dNdxi=zeros(Float64,nintpt,2)
-      xii=zeros(Float64,2)
-      B=zeros(Float64,3,8)  
-      xii[1]=xi[1,intpt]    
-      xii[2]=xi[2,intpt]
-      N[1]=((1-xii[1])*(1-xii[2]))/4
-      N[2]=((1+xii[1])*(1-xii[2]))/4
-      N[3]=((1+xii[1])*(1+xii[2]))/4
-      N[4]=((1-xii[1])*(1+xii[2]))/4
-      dNdxi[1,1]=-(1-xii[2])/4
-      dNdxi[1,2]=-(1-xii[1])/4
-      dNdxi[2,1]=(1-xii[2])/4
-      dNdxi[2,2]=-(1+xii[1])/4
-      dNdxi[3,1]=(1+xii[2])/4
-      dNdxi[3,2]=(1+xii[1])/4
-      dNdxi[4,1]=-(1+xii[2])/4
-      dNdxi[4,2]=(1-xii[1])/4
+      B=zeros(Float64,3,8)   
+      ξ=xi[1,intpt]
+      η=xi[2,intpt]
+      N[1]=((1-ξ)*(1-η))/4
+      N[2]=((1+ξ)*(1-η))/4
+      N[3]=((1+ξ)*(1+η))/4
+      N[4]=((1-ξ)*(1+η))/4
+      dNdxi[1,1]=-(1-η)/4
+      dNdxi[1,2]=-(1-ξ)/4
+      dNdxi[2,1]=(1-η)/4
+      dNdxi[2,2]=-(1+ξ)/4
+      dNdxi[3,1]=(1+η)/4
+      dNdxi[3,2]=(1+ξ)/4
+      dNdxi[4,1]=-(1+η)/4
+      dNdxi[4,2]=(1-ξ)/4
       dxdxi=zeros(Float64,2,2)
-      for i = 1:2, j = 1:2
+      for i = 1:2, j = 1:2     
         dxdxi[i,j]=0
         for l = 1:NEle
-          dxdxi[i,j]=dxdxi[i,j]+coord[l,i]*dNdxi[l,j]   
+          dxdxi[i,j]=dxdxi[i,j]+coord[l,i]*dNdxi[l,j]  
         end
       end
       dxidx=zeros(Float64,2,2)
@@ -120,10 +119,6 @@ function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
 end
 
 function fixednodes(supports,loadings,n,DoF,u,F)
-#This function is designed to be able to get the nodes in the Structure and write a vector that has 1 or 0 in it
-#1 indicate that the node can displace/rotate in that direction, and 0 that is fixed (can't)
-#If in a coordinate at Displacement Vector (u) has 1 it implie that in the same coordinate at the Force Vector (F) should be a force that is not 0
-#and vice-versa
   for i = 1:n[3]
     row=Int(supports[i,2]*2-1)
     for j = 1:DoF
@@ -144,7 +139,6 @@ function fixednodes(supports,loadings,n,DoF,u,F)
 end
 
 function boundaryconditions(K,u,n_no,DoF)
-#This function was written to get the Displacement Vector and apply Boundary Conditions at the GSM by analyzing if that direction is free to displace
   for i = 1:n_no*DoF
     if(u[i]==0)
       for j = 1:n_no*DoF

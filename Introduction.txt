@@ -22,7 +22,7 @@
 #N = Shape Functions
 #dNdxi = Shape Functions' Derivatives
 #ξ and η = Natural Coordinates
-#dxdxi = ith-Deformation Matrix [Bi]
+#dxdxi = Jacobian Matrix [J]
 #dtm = Jacobi Determinant
 #[B] = Deformation Matrix
 #[D] = Differential Operators Matrix

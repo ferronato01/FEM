@@ -24,6 +24,7 @@
 #ξ and η = Natural Coordinates
 #dxdxi = Jacobian Matrix [J]
 #dtm = Jacobi Determinant
+#dxidx = Jacobi's Inverse
 #[B] = Deformation Matrix
 #[D] = Differential Operators Matrix
 #coord = Matrix that restrain the elements X and Y coordinates

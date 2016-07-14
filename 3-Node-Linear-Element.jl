@@ -86,7 +86,7 @@ end
 function fixednodes(supports,loadings,n,DoF,u,F)
 #This function is designed to be able to get the nodes in the Structure and write a vector that has 1 or 0 in it
 #1 indicate that the node can displace/rotate in that direction, and 0 that is restrained (can't)
-#If in a coordinate at Displacement Vector (u) has 1 it implie that in the same coordinate at the Force Vector (F) should be a force that is not 0
+#If in a coordinate at Displacement Vector (u) has 1 it imply that in the same coordinate at the Force Vector (F) should be a force that is not 0
 #and vice-versa
   for i = 1:n[3]
     row=Int(supports[i,2]*2-1)

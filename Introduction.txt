@@ -18,6 +18,14 @@
 #ν = Poisson Ratio
 #t = thickness
 #p = Stress/Strain Constant
+#xi = The set of 8-natural-coordinates from the Quadrilateral
+#N = Shape Functions
+#dNdxi = Shape Functions' Derivatives
+#ξ and η = Natural Coordinates
+#dxdxi = ith-Deformation Matrix [Bi]
+#dtm = Jacobi Determinant
+#[B] = Deformation Matrix
+#[D] = Differential Operators Matrix
 #coord = Matrix that restrain the elements X and Y coordinates
 #u = vector that holds if a node can displace or not
 #F = Force Vector

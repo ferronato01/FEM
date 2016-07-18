@@ -31,7 +31,7 @@ function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
   GDoF=n[1]*DoF
   xx = zeros(Float64,n[1])
   yy = zeros(Float64,n[1])
-#Nodes coordinates for Lenght are gotten  
+#Nodes coordinates for Lenght are gotten
   for i = 1:n[1]
     xx[i]=nodes[i,2]
     yy[i]=nodes[i,3]
@@ -194,10 +194,8 @@ function boundaryconditions(K,u,n_no,DoF)
 end
 
 function Stress(elements,nodes,n,NEle,nintpt,DoF,desloc,σ)
-#This function, which is not done yet, will get the Displacements of
-#each node and then calculate the Element Stresses.
-#This function is the same of the GlobalStiffness one until the part
-#that we get K, so it leaves only a added part at the final
+#This function contain in σ a bug that doesn't return the real
+#result. This will be fixed in the next patch.
   LDoF=NEle*DoF
   GDoF=n[1]*DoF
   xx = zeros(Float64,n[1])
@@ -223,6 +221,13 @@ function Stress(elements,nodes,n,NEle,nintpt,DoF,desloc,σ)
         elementDof[2(i-1)+j]=indice[i]*2+(j-2)
       end
     end
+#Here the displacement of each element is taken in order to calculate
+#each Element stresses'
+    u=zeros(Float64,NEle*DoF)
+    for i = 1:n[2]
+      u[DoF*i-1]=desloc[indice[i]*2-1]
+      u[DoF*i]=desloc[indice[i]*2]
+    end
     k=zeros(Float64,LDoF,LDoF)
     xi=zeros(Float64,2,4)
     w=ones(Float64,4)
@@ -237,10 +242,10 @@ function Stress(elements,nodes,n,NEle,nintpt,DoF,desloc,σ)
     E = elements[e,6]
     ν = elements[e,7]
     t = elements[e,8]
+    B=zeros(Float64,3,8)
     for intpt = 1:nintpt
       N=zeros(Float64,nintpt)
       dNdxi=zeros(Float64,nintpt,2)
-      B=zeros(Float64,3,8)
       ξ=xi[1,intpt]
       η=xi[2,intpt]
       N[1]=((1-ξ)*(1-η))/4
@@ -276,11 +281,6 @@ function Stress(elements,nodes,n,NEle,nintpt,DoF,desloc,σ)
           dNdx[l,i]=dNdx[l,i]+dNdxi[l,j]*dxidx[j,i]
         end
       end
-      if elements[e,9]==1
-        D = (E/(1-ν*ν))*[1 ν 0;ν 1 0;0 0 (1-ν)/2]
-      elseif elements[e,9]==2
-        D = (E/((1+ν)*(1-2*ν)))*[1-ν ν 0;ν 1-ν 0;0 0 (1-2*ν)/2]
-      end
       iy=0
       for i = 1:NEle
         ix=iy+1
@@ -293,9 +293,15 @@ function Stress(elements,nodes,n,NEle,nintpt,DoF,desloc,σ)
         B[3,iy]=dNdx[i,1]
       end
     end
+    if elements[e,9]==1
+      D = (E/(1-ν*ν))*[1 ν 0;ν 1 0;0 0 (1-ν)/2]
+    elseif elements[e,9]==2
+      D = (E/((1+ν)*(1-2*ν)))*[1-ν ν 0;ν 1-ν 0;0 0 (1-2*ν)/2]
+    end
+    σ=D*B*u
+    println(σ)
   end
 end
-
 
 K=zeros(Float64,GDoF,GDoF)
 GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
@@ -304,6 +310,6 @@ F=zeros(Float64,n[1]*DoF)
 fixednodes(supports,loadings,n,DoF,u,F)
 boundaryconditions(K,u,n[1],DoF)
 desloc = K\F
-println(desloc)
+#println(desloc)
 σ=zeros(Float64,n[2],NEle)
 Stress(elements,nodes,n,NEle,nintpt,DoF,desloc,σ)

@@ -1,5 +1,7 @@
 13/07/2016
-*Implementation of nonLinear analysis source code.
+*Implementation of nonlinear analysis source code.
 *Minor bugs correction
 18/07/2016
-*Stresses calculations properly working in 4-Node-Linear
+*Stresses calculations almost properly working in 4-Node-Linear
+24/07/2016
+*Some changes in the nonlinear analysis loop

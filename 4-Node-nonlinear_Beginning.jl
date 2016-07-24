@@ -3,13 +3,27 @@ n =[6;2;2;2]
 nodes=[1 0 0;2 0.25 0;3 0.5 0;4 0 0.25;5 0.25 0.25;6 0.5 0.25]
 elements=[1 1 2 5 4 210e9 0.3 0.025 1;2 2 3 6 5 210e9 0.3 0.025 1]
 supports=[1 1 0 0;2 4 0 0]
-loadings=[1 3 9.375e3 0;2 6 9.375e3 0]
+loadings=[1 3 9.375e3 5000;2 6 9.375e3 5000]
 nintpt=4
 DoF=2
 NEle=4
 LDoF=NEle*n[1]
 GDoF=DoF*n[1]
 nldegree=5
+increment=zeros(Float64,n[4],2+nldegree*2)
+for i=1:n[4]
+  increment[i,1]=loadings[i,1]
+  increment[i,2]=loadings[i,2]
+end
+for i=1:n[4], j=1:nldegree
+  k=1
+  l=3
+  Δqx=loadings[i,l]/nldegree
+  increment[i,k*2j+1]=Δqx*j
+  l+=1
+  Δqy=loadings[i,l]/nldegree
+  increment[i,k*2j+2]=Δqy*j
+end
 #
 
 function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
@@ -119,22 +133,26 @@ function GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
   end
 end
 
-function fixednodes(supports,nlloads,n,DoF,u,F)
-  for i = 1:n[3]
-    row=Int(supports[i,2]*2-1)
-    for j = 1:DoF
-      u[row-1+j]=supports[i,j+2]
+function fixednodes(supports,n,DoF,u,F,nldegree,increment)
+  δ=0
+  for inc=1:nldegree
+    for i = 1:n[3]
+      row=Int(supports[i,2]*DoF-1)
+      for j = 1:DoF
+        u[row-1+j]=supports[i,j+2]
+      end
     end
-  end
-  for i = 1:n[4]
-    row=Int(nlloads[i,2]*2-1)
-    for j = 1:DoF
-      F[row-1+j]=nlloads[i,j+2]
+    for i = 1:n[4]
+      row=Int(increment[i,2]*DoF-1)
+      for j = 1:DoF
+        F[row-1+j+δ]=increment[i,2*inc+j]
+      end
     end
-  end
-  for i = 1:n[1]*DoF
-    if(u[i]==0)
-      F[i]=0
+    δ+=n[1]*DoF
+    for i = 1:n[1]*DoF
+      if(u[i]==0)
+        F[i]=0
+      end
     end
   end
 end
@@ -255,20 +273,11 @@ end
 
 K=zeros(Float64,GDoF,GDoF)
 GlobalStiffness(elements,nodes,n,NEle,nintpt,DoF,K)
-u=ones(Float64,n[1]*DoF)
-F=zeros(Float64,n[1]*DoF)
-for nl = 1:nldegree
-  nlloads=zeros(Float64,n[4],4)
-  nlloads=loadings
-  for i = 1:n[4]
-    nlloads[i,3]=(loadings[i,3])/(nldegree-nl+1)
-    nlloads[i,4]=(loadings[i,4])/(nldegree-nl+1)
-  end
-  println(nlloads)
-  fixednodes(supports,nlloads,n,DoF,u,F)
-  boundaryconditions(K,u,n[1],DoF)
-  desloc = K\F
-  #println(desloc)
-  σ=zeros(Float64,n[2],NEle)
-  Stress(elements,nodes,n,NEle,nintpt,DoF,desloc,σ)
-end
+u=ones(Float64,n[1]*DoF*nldegree)
+F=zeros(Float64,n[1]*DoF*nldegree)
+fixednodes(supports,n,DoF,u,F,nldegree,increment)
+boundaryconditions(K,u,n[1],DoF)
+#desloc = K\F
+#println(desloc)
+σ=zeros(Float64,n[2],NEle)
+Stress(elements,nodes,n,NEle,nintpt,DoF,desloc,σ)

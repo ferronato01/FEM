@@ -5,3 +5,5 @@
 *Stresses calculations almost properly working in 4-Node-Linear
 24/07/2016
 *Some changes in the nonlinear analysis loop
+25/07/2016
+*nonlinear analysis properly calculating displacement for each Δq

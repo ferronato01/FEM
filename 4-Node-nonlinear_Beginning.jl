@@ -286,6 +286,9 @@ for i=1:nldegree
   end
   δ+=n[1]*DoF
   desloc = K\F′
+#Reformular
+  #Fazer o vetor desloc ser uma matriz com nldegree linhas e armazenar o deslocamento de cada K\F′ em uma linha da matriz desloc
+  #Como desloc passa a ser uma matriz, na função Stress, tem que fazer um loop maior para calcular as tensões, e cada iteração percorrerá uma linha de desloc
   println(desloc)
   Stress(elements,nodes,n,NEle,nintpt,DoF,desloc,σ)
 end

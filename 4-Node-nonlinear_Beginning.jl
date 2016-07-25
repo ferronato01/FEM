@@ -3,7 +3,7 @@ n =[6;2;2;2]
 nodes=[1 0 0;2 0.25 0;3 0.5 0;4 0 0.25;5 0.25 0.25;6 0.5 0.25]
 elements=[1 1 2 5 4 210e9 0.3 0.025 1;2 2 3 6 5 210e9 0.3 0.025 1]
 supports=[1 1 0 0;2 4 0 0]
-loadings=[1 3 9.375e3 5000;2 6 9.375e3 5000]
+loadings=[1 3 9.375e3 0;2 6 9.375e3 0]
 nintpt=4
 DoF=2
 NEle=4
@@ -277,7 +277,15 @@ u=ones(Float64,n[1]*DoF*nldegree)
 F=zeros(Float64,n[1]*DoF*nldegree)
 fixednodes(supports,n,DoF,u,F,nldegree,increment)
 boundaryconditions(K,u,n[1],DoF)
-#desloc = K\F
-#println(desloc)
-σ=zeros(Float64,n[2],NEle)
-Stress(elements,nodes,n,NEle,nintpt,DoF,desloc,σ)
+F′=zeros(Float64,n[1]*DoF)
+σ=zeros(Float64,n[2]*nldegree,NEle)
+δ=0
+for i=1:nldegree
+  for j=1:n[1]*DoF
+    F′[j]=F[δ+j]
+  end
+  δ+=n[1]*DoF
+  desloc = K\F′
+  println(desloc)
+  Stress(elements,nodes,n,NEle,nintpt,DoF,desloc,σ)
+end
